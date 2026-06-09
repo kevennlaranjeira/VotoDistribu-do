@@ -30,7 +30,8 @@ npm run build
 npm run test:ci
 ```
 
-O frontend consome:
+Em producao Docker, o Nginx do frontend encaminha:
 
-- `http://localhost:8081` para o core/agregador.
-- `http://coletor.local:8080` para o backend/coletor.
+- `/api-core` para o core/agregador.
+- `/api-coletor` para o backend/coletor.
+- `/ws` para o WebSocket do core.

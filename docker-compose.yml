@@ -8,8 +8,13 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-yan}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-yan}
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
     networks:
       - rede
 
@@ -21,10 +26,14 @@ services:
       POSTGRES_DB: ${POSTGRES_CORE_DB:-core}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_core_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_CORE_DB:-core}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
     networks:
       - rede
 
@@ -36,10 +45,14 @@ services:
       POSTGRES_DB: ${POSTGRES_ELEICAO_DB:-eleicao}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_eleicao_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_ELEICAO_DB:-eleicao}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
     networks:
       - rede
 
@@ -49,8 +62,10 @@ services:
     container_name: agregador
     restart: unless-stopped
     depends_on:
-      - postgres_core
-      - rabbitmq
+      postgres_core:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core:5432/${POSTGRES_CORE_DB:-core}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
@@ -60,7 +75,7 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-yan}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-yan}
     ports:
-      - "8081:8081"
+      - "${CORE_PORT:-28081}:8081"
     networks:
       - rede
 
@@ -69,7 +84,7 @@ services:
     container_name: nginx_balanceador
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "${COLETOR_PORT:-28080}:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
@@ -80,11 +95,14 @@ services:
       context: ./backend
     restart: unless-stopped
     depends_on:
-      - postgres_eleicao
-      - rabbitmq
-      - nginx-proxy
+      postgres_eleicao:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      nginx-proxy:
+        condition: service_started
     environment:
-      VIRTUAL_HOST: coletor.local
+      VIRTUAL_HOST: localhost,coletor.local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_eleicao:5432/${POSTGRES_ELEICAO_DB:-eleicao}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
@@ -104,7 +122,7 @@ services:
       - agregador
       - coletor
     ports:
-      - "4200:4200"
+      - "${FRONTEND_PORT:-4200}:4200"
     networks:
       - rede
 

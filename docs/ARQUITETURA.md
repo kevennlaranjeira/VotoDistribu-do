@@ -7,8 +7,8 @@ O Voto Distribuido foi organizado em tres aplicacoes e quatro componentes de inf
 ```mermaid
 flowchart LR
     Browser["Navegador"] --> Frontend["Frontend Angular / Nginx"]
-    Browser --> Proxy["nginx-proxy coletor.local:8080"]
-    Browser --> Core["Core / Agregador :8081"]
+    Frontend --> Proxy["nginx-proxy :80"]
+    Frontend --> Core["Core / Agregador :8081"]
     Proxy --> Coletor1["Coletor replica 1"]
     Proxy --> Coletor2["Coletor replica 2"]
     Proxy --> Coletor3["Coletor replica 3"]
@@ -25,7 +25,7 @@ flowchart LR
 
 ## Componentes
 
-- `frontend`: cliente Angular. Consome `http://localhost:8081` para resultados e WebSocket, e `http://coletor.local:8080` para login, cadastro e voto.
+- `frontend`: cliente Angular. Publica a interface em `http://localhost:4200` e encaminha chamadas internas por `/api-core`, `/api-coletor` e `/ws`.
 - `backend`: no coletor. Recebe votos autenticados, valida o token JWT e publica mensagens na fila `fila-votos`.
 - `core`: no agregador. Consome votos da fila, atualiza totais, mantem candidatos/cidades e publica atualizacoes para o frontend via WebSocket.
 - `nginx-proxy`: proxy reverso que balanceia as replicas do coletor pelo host virtual `coletor.local`.
@@ -38,11 +38,11 @@ flowchart LR
 | Servico | Porta local | Uso |
 | --- | ---: | --- |
 | Frontend | `4200` | Interface web |
-| Coletor via proxy | `8080` | Login, usuarios e votos |
-| Core | `8081` | Resultados e WebSocket |
-| PostgreSQL core | `5432` | Banco do agregador |
-| PostgreSQL eleicao | `5433` | Banco do coletor |
-| RabbitMQ | `5672` | AMQP |
+| Coletor via proxy | `28080` | Login, usuarios e votos para testes diretos no host |
+| Core | `28081` | Resultados e WebSocket para testes diretos no host |
+| PostgreSQL core | interno | Banco do agregador |
+| PostgreSQL eleicao | interno | Banco do coletor |
+| RabbitMQ | interno | AMQP |
 | RabbitMQ Management | `15672` | Interface web |
 
 ## Filas principais

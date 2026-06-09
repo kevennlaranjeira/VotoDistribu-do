@@ -75,9 +75,11 @@ docker compose logs -f coletor
 Teste endpoints:
 
 ```bash
-curl http://coletor.local:8080/user/healthCheck
-curl http://localhost:8081/eleicao-gp2/listarCandidatosDesc
+curl http://localhost:28080/user/healthCheck
+curl http://localhost:28081/eleicao-gp2/listarCandidatosDesc
 ```
+
+Se alguma porta publicada estiver ocupada, ajuste os valores no `.env` antes de subir a stack.
 
 Resultado esperado:
 

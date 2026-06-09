@@ -6,7 +6,7 @@ O projeto simula uma eleicao com separacao entre o no coletor, responsavel por r
 
 ## Arquitetura
 
-- `frontend`: aplicacao Angular publicada por Nginx na porta `4200`.
+- `frontend`: aplicacao Angular publicada por Nginx na porta `4200`; tambem faz proxy para o coletor, core e WebSocket.
 - `backend`: servico coletor Spring Boot, escalavel em multiplas replicas.
 - `core`: servico agregador Spring Boot, responsavel por candidatos, totalizacao e WebSocket.
 - `nginx-proxy`: balanceador que recebe `coletor.local:8080` e distribui chamadas para as replicas do coletor.
@@ -20,26 +20,7 @@ Mais detalhes estao em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 - Git
 - Docker Desktop ou Docker Engine com Docker Compose
-- Host `coletor.local` apontando para `127.0.0.1`
 - Opcional para testes locais sem Docker: Java 21+ e Node.js 22+
-
-No Windows, abra o Bloco de Notas como administrador e edite:
-
-```text
-C:\Windows\System32\drivers\etc\hosts
-```
-
-Adicione:
-
-```text
-127.0.0.1 coletor.local
-```
-
-No Linux/macOS:
-
-```bash
-echo "127.0.0.1 coletor.local" | sudo tee -a /etc/hosts
-```
 
 ## Executando com Docker
 
@@ -71,9 +52,11 @@ docker compose ps
 Acesse:
 
 - Frontend: http://localhost:4200
-- Coletor balanceado: http://coletor.local:8080/user/healthCheck
-- Agregador: http://localhost:8081/eleicao-gp2/listarCandidatosDesc
+- Coletor balanceado: http://localhost:28080/user/healthCheck
+- Agregador: http://localhost:28081/eleicao-gp2/listarCandidatosDesc
 - RabbitMQ Management: http://localhost:15672 com usuario `yan` e senha `yan`
+
+As portas publicadas podem ser alteradas no `.env` (`FRONTEND_PORT`, `COLETOR_PORT`, `CORE_PORT` e `RABBITMQ_MANAGEMENT_PORT`) caso alguma delas ja esteja em uso.
 
 Para parar:
 
@@ -129,3 +112,5 @@ O processo completo de verificacao esta em [docs/TESTES.md](docs/TESTES.md).
 ## Observacoes
 
 Este projeto usa credenciais simples e uma chave JWT fixa para facilitar a avaliacao academica. Para uso real, substitua os valores do `.env`, proteja segredos e revise as politicas de CORS, autenticacao e persistencia.
+
+O frontend usa proxy interno para falar com os servicos pela propria origem (`/api-coletor`, `/api-core` e `/ws`). Isso evita depender de edicao de `hosts` ou de CORS no navegador. O proxy do coletor tambem aceita o host `coletor.local` para compatibilidade com a configuracao original.

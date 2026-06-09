@@ -1,6 +1,3 @@
-Adicionar host local:
-127.0.0.1 coletor.local
-
 Preparar ambiente:
 cp .env.example .env
 
@@ -12,6 +9,10 @@ docker compose up -d --build --scale coletor=3
 
 Ver containers:
 docker compose ps
+
+Health check:
+curl http://localhost:28080/user/healthCheck
+curl http://localhost:28081/eleicao-gp2/listarCandidatosDesc
 
 Parar stack:
 docker compose down
