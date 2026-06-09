@@ -1,0 +1,117 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: sd-rabbit
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-yan}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-yan}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rede
+
+  postgres_core:
+    image: postgres:16
+    container_name: bd_sd_core
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_CORE_DB:-core}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_core_data:/var/lib/postgresql/data
+    networks:
+      - rede
+
+  postgres_eleicao:
+    image: postgres:16
+    container_name: postgres_eleicao
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_ELEICAO_DB:-eleicao}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_eleicao_data:/var/lib/postgresql/data
+    networks:
+      - rede
+
+  agregador:
+    build:
+      context: ./core
+    container_name: agregador
+    restart: unless-stopped
+    depends_on:
+      - postgres_core
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core:5432/${POSTGRES_CORE_DB:-core}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-yan}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-yan}
+    ports:
+      - "8081:8081"
+    networks:
+      - rede
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:latest
+    container_name: nginx_balanceador
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - rede
+
+  coletor:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      - postgres_eleicao
+      - rabbitmq
+      - nginx-proxy
+    environment:
+      VIRTUAL_HOST: coletor.local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_eleicao:5432/${POSTGRES_ELEICAO_DB:-eleicao}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-yan}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-yan}
+      JWT_SECRET: ${JWT_SECRET:-MN4064ZQbSAr4cijQMphT8dbpGgJoOaeL6aFF/wKhkA=}
+    networks:
+      - rede
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    restart: unless-stopped
+    depends_on:
+      - agregador
+      - coletor
+    ports:
+      - "4200:4200"
+    networks:
+      - rede
+
+volumes:
+  postgres_core_data:
+  postgres_eleicao_data:
+
+networks:
+  rede:
+    driver: bridge

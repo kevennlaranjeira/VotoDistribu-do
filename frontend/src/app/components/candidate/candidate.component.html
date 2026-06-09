@@ -1,0 +1,14 @@
+<div class="card">
+  <div class="nome">{{ nome }}</div>
+  <img class="foto" [src]="'http://localhost:8081/eleicao-gp2/candidatos/' + id + '/imagem'" />
+
+  @if (quantidadeVotos > 0) {
+    <div class="votos" [class.animacao]="animar">
+      Votos: {{ quantidadeVotos }} <br />
+      Porcentagem: {{ porcentagem }}%
+    </div>
+  }
+  @if (quantidadeVotos === 0) {
+    <div class="votos" [class.animacao]="animar">Nenhum voto ainda</div>
+  }
+</div>

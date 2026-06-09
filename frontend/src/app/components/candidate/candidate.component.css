@@ -1,0 +1,31 @@
+.card {
+  padding: 1rem;
+  margin: 0.5rem;
+  padding-bottom: 0;
+  text-align: center;
+}
+
+.nome {
+  color: black;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.foto {
+  width: 200px;
+  height: 200px;
+  border-radius: 4px;
+  margin: 0.5rem auto;
+  display: block;
+}
+.votos {
+  margin-top: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: transform 0.7s ease-in-out;
+}
+
+.votos.animacao {
+  transform: scale(1.2);
+  border-width: 3em;
+}

@@ -1,0 +1,11 @@
+.env
+.DS_Store
+Thumbs.db
+
+**/target/
+**/logs/
+**/node_modules/
+**/dist/
+**/.angular/cache/
+
+*.log
