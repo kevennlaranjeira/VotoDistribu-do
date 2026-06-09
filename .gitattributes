@@ -4,6 +4,22 @@
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
 
+*.java linguist-language=Java
+*.ts linguist-language=TypeScript
+*.html linguist-language=HTML
+*.css linguist-language=CSS
+*.scss linguist-language=SCSS
+*.js linguist-language=JavaScript
+
+*.md linguist-documentation=true
+docs/** linguist-documentation=true
+comandos.txt linguist-documentation=true
+arquitetura.excalidraw linguist-generated=true
+frontend/package-lock.json linguist-generated=true
+**/.mvn/** linguist-vendored=true
+**/mvnw linguist-generated=true
+**/mvnw.cmd linguist-generated=true
+
 *.png binary
 *.jpg binary
 *.jpeg binary

@@ -1,4 +1,6 @@
 .env
+.env.*
+!.env.example
 .DS_Store
 Thumbs.db
 
@@ -9,3 +11,9 @@ Thumbs.db
 **/.angular/cache/
 
 *.log
+*.pem
+*.key
+*.p12
+*.jks
+id_rsa*
+id_ed25519*

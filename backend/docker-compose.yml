@@ -15,12 +15,13 @@ services:
     environment:
       VIRTUAL_HOST: coletor.local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_eleicao:5432/eleicao
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-voto_dev}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-voto_dev_password}
       SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_USERNAME: yan
-      SPRING_RABBITMQ_PASSWORD: yan
-      JWT_SECRET: MN4064ZQbSAr4cijQMphT8dbpGgJoOaeL6aFF/wKhkA=
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-voto_dev}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-voto_dev_password}
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LW9ubHktand0LXNlY3JldC0zMi1ieXRlcy1rZXktMDAwMA==}
+      APP_ADMIN_NICK: ${APP_ADMIN_NICK:-admin}
 
     networks:
       rede:

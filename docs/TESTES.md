@@ -87,6 +87,17 @@ Resultado esperado:
 - A listagem de candidatos deve retornar JSON.
 - O frontend deve abrir em `http://localhost:4200`.
 - O RabbitMQ Management deve abrir em `http://localhost:15672`.
+- O login do RabbitMQ Management usa as credenciais demonstrativas do `.env`: `voto_dev` / `voto_dev_password`.
+
+## Varredura basica para publicacao
+
+Antes de publicar alteracoes, rode uma busca simples por valores sensiveis:
+
+```bash
+git grep -n -I -E "(password|senha|secret|token|api[ _-]?key|private[ _-]?key|BEGIN (RSA|OPENSSH|PRIVATE))" -- . ':!frontend/package-lock.json'
+```
+
+Revise manualmente os resultados. Variaveis de ambiente, exemplos publicos e codigo que manipula tokens podem aparecer nessa busca sem serem segredos reais.
 
 ## Limpeza
 

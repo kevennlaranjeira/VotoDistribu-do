@@ -2,7 +2,7 @@
 
 ## Visao geral
 
-O Voto Distribuido foi organizado em tres aplicacoes e quatro componentes de infraestrutura.
+O Voto Distribuido foi organizado em tres aplicacoes e quatro componentes de infraestrutura. O projeto foi criado para fins avaliativos na disciplina de Sistemas Distribuidos da UFV.
 
 ```mermaid
 flowchart LR
@@ -28,7 +28,7 @@ flowchart LR
 - `frontend`: cliente Angular. Publica a interface em `http://localhost:4200` e encaminha chamadas internas por `/api-core`, `/api-coletor` e `/ws`.
 - `backend`: no coletor. Recebe votos autenticados, valida o token JWT e publica mensagens na fila `fila-votos`.
 - `core`: no agregador. Consome votos da fila, atualiza totais, mantem candidatos/cidades e publica atualizacoes para o frontend via WebSocket.
-- `nginx-proxy`: proxy reverso que balanceia as replicas do coletor pelo host virtual `coletor.local`.
+- `nginx-proxy`: proxy reverso que balanceia as replicas do coletor. No Docker, o frontend acessa esse proxy internamente por `/api-coletor`.
 - `rabbitmq`: broker de comunicacao assincrona.
 - `postgres_core`: persistencia do agregador.
 - `postgres_eleicao`: persistencia do coletor.
@@ -44,6 +44,8 @@ flowchart LR
 | PostgreSQL eleicao | interno | Banco do coletor |
 | RabbitMQ | interno | AMQP |
 | RabbitMQ Management | `15672` | Interface web |
+
+As portas publicadas podem ser alteradas pelo arquivo `.env`. PostgreSQL e AMQP ficam internos na rede Docker para reduzir conflitos e evitar exposicao desnecessaria.
 
 ## Filas principais
 
@@ -61,3 +63,7 @@ flowchart LR
 - `GET /eleicao-gp2/listarCandidatosDesc` no core: lista candidatos por votos.
 - `GET /eleicao-gp2/candidatos/{id}/imagem` no core: retorna imagem do candidato.
 - `GET /ws` no core: endpoint SockJS/STOMP usado pelo frontend.
+
+## Observacoes de seguranca
+
+As credenciais padrao sao demonstrativas e publicas. Elas existem apenas para facilitar a replicacao local do trabalho. Para qualquer ambiente fora da avaliacao, substitua senhas, gere novo `JWT_SECRET` e restrinja interfaces administrativas.

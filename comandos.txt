@@ -14,6 +14,14 @@ Health check:
 curl http://localhost:28080/user/healthCheck
 curl http://localhost:28081/eleicao-gp2/listarCandidatosDesc
 
+RabbitMQ Management:
+http://localhost:15672
+usuario: voto_dev
+senha: voto_dev_password
+
+Busca simples por dados sensiveis:
+git grep -n -I -E "(password|senha|secret|token|api[ _-]?key|private[ _-]?key|BEGIN (RSA|OPENSSH|PRIVATE))" -- . ':!frontend/package-lock.json'
+
 Parar stack:
 docker compose down
 

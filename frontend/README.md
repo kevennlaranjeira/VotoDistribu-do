@@ -2,6 +2,8 @@
 
 Interface Angular do sistema Voto Distribuido.
 
+Este frontend faz parte de um projeto avaliativo da disciplina de Sistemas Distribuidos da UFV.
+
 ## Desenvolvimento local
 
 Instale as dependencias:
